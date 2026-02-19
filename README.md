@@ -355,3 +355,4 @@ If this were going to production, I would prioritize:
 
 1. **Encrypt PII at Rest**: Encrypt sensitive fields (SSN, DOB) before storing, even in-memory, to protect against memory dumps
 2. **Add Rate Limiting**: Prevent brute-force attacks and abuse of the application endpoint
+3. **Structured Logging**: Add audit logging for application submissions (without PII) to track usage, errors, and security events
