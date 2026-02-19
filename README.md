@@ -225,6 +225,9 @@ For local development, the default key is `stipend-api-key-2026`.
   /api
     /applications
       route.ts            # POST /api/applications endpoint
+    /admin
+      /applications
+        route.ts          # GET /api/admin/applications (view stored data)
 /lib
   /stores
     applicationStore.ts   # In-memory full application storage
