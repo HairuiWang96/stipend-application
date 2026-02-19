@@ -158,7 +158,7 @@ export default function ApplicationForm({ onSuccess }: ApplicationFormProps) {
                         <label htmlFor='dateOfBirth' className='block text-sm font-medium mb-1'>
                             Date of Birth *
                         </label>
-                        <input id='dateOfBirth' type='date' {...register('dateOfBirth')} className='w-full border rounded px-3 py-2' />
+                        <input id='dateOfBirth' type='date' min='1900-01-01' max='2099-12-31' {...register('dateOfBirth')} className='w-full border rounded px-3 py-2' />
                         {errors.dateOfBirth && <p className='text-red-600 text-sm mt-1'>{errors.dateOfBirth.message}</p>}
                     </div>
 
