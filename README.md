@@ -272,7 +272,7 @@ For local development, the default key is `stipend-api-key-2026`.
     - Full Address (not needed for downstream processing)
     - Phone number (only email retained for contact)
 
-3. **UI Input**: SSN field uses `type="password"` and `autoComplete="off"` to prevent visual exposure and browser caching.
+3. **UI Input**: SSN field defaults to masked with a show/hide toggle icon (open eye to reveal, closed eye to hide), and uses `autoComplete="off"` to prevent browser caching.
 
 4. **Error Logging**: The API catches errors without logging request bodies that might contain PII. Only error messages are logged.
 
