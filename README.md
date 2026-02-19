@@ -208,11 +208,12 @@ cp .env.example .env.local
 
 Required variables:
 
-| Variable  | Description                                |
-| --------- | ------------------------------------------ |
-| `API_KEY` | Secret key for authenticating API requests |
+| Variable         | Description                                                              |
+| ---------------- | ------------------------------------------------------------------------ |
+| `API_KEY`        | Secret key for authenticating API requests                               |
+| `ENCRYPTION_KEY` | Key for encrypting PII (SSN, DOB) - generate with `openssl rand -hex 32` |
 
-For local development, the default key is `stipend-api-key-2026`.
+For local development, default values are provided in `.env.example`.
 
 ---
 
@@ -241,6 +242,7 @@ For local development, the default key is `stipend-api-key-2026`.
     index.ts              # TypeScript interfaces
   /utils
     piiUtils.ts           # SSN masking, handoff record creation
+    encryption.ts         # AES-256-GCM encryption for PII
 /components
   ApplicationForm.tsx     # React Hook Form component
 /__tests__
@@ -277,6 +279,8 @@ For local development, the default key is `stipend-api-key-2026`.
 4. **Error Logging**: The API catches errors without logging request bodies that might contain PII. Only error messages are logged.
 
 5. **In-Memory Storage**: Full application data (including PII) is stored only in the application store. The separate handoff store contains the minimal record needed for downstream systems.
+
+6. **Encryption at Rest**: SSN and Date of Birth are encrypted using AES-256-GCM before being stored in memory. This protects against memory dumps and unauthorized access to the application store.
 
 ---
 
@@ -353,6 +357,6 @@ interface HandoffRecord {
 
 If this were going to production, I would prioritize:
 
-1. **Encrypt PII at Rest**: Encrypt sensitive fields (SSN, DOB) before storing, even in-memory, to protect against memory dumps
-2. **Add Rate Limiting**: Prevent brute-force attacks and abuse of the application endpoint
-3. **Structured Logging**: Add audit logging for application submissions (without PII) to track usage, errors, and security events
+1. **Add Rate Limiting**: Prevent brute-force attacks and abuse of the application endpoint
+2. **Structured Logging**: Add audit logging for application submissions (without PII) to track usage, errors, and security events
+3. **Key Management**: Use a dedicated key management service (AWS KMS, HashiCorp Vault) instead of environment variables for the encryption key
