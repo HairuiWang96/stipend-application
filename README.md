@@ -208,8 +208,8 @@ cp .env.example .env.local
 
 Required variables:
 
-| Variable | Description |
-|----------|-------------|
+| Variable  | Description                                |
+| --------- | ------------------------------------------ |
 | `API_KEY` | Secret key for authenticating API requests |
 
 For local development, the default key is `stipend-api-key-2026`.
@@ -322,14 +322,18 @@ interface HandoffRecord {
 
 ## AI Tool Usage
 
-**Tools Used**: Claude Code (Anthropic's CLI tool)
+**Tools Used**: Claude Code
 
 **What it was used for**:
 
-- Project scaffolding and file structure planning
+- Checking requirements and ensuring minimum requirements were completed
+- Implementing the project structure and file organization based on design decisions
 - Generating TypeScript interfaces and Zod schemas
 - Implementing SSN validation patterns (researched valid SSN rules)
 - Writing Jest test cases for business rules
+- Code comments throughout the codebase
+- US states list for the state dropdown
+- Tailwind CSS styling classes
 - README documentation
 
 **How output was validated**:
@@ -342,14 +346,9 @@ interface HandoffRecord {
 
 ---
 
-## Next Steps (If More Time)
+## Next Steps (For Production)
 
-If I had additional time, I would:
+If this were going to production, I would prioritize:
 
-1. **Add API Integration Tests**: Test the full `/api/applications` endpoint with supertest
-2. **Add Rate Limiting**: Prevent abuse of the application endpoint
-3. **Encrypt PII at Rest**: Even for in-memory storage, encrypt SSN before storing
-4. **Add Input Sanitization**: Additional XSS prevention for text fields
-5. **Add Audit Logging**: Track application submissions (without logging PII)
-6. **Add CSRF Protection**: For the form submission
-7. **Improve Error Messages**: More user-friendly validation feedback
+1. **Encrypt PII at Rest**: Encrypt sensitive fields (SSN, DOB) before storing, even in-memory, to protect against memory dumps
+2. **Add Rate Limiting**: Prevent brute-force attacks and abuse of the application endpoint
