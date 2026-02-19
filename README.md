@@ -34,8 +34,8 @@ Build a small stipend (or grant) application flow that:
 - Persistence must be in memory
 - No databases, Docker, AWS accounts, or external services
 - The project should run locally using:
-  - `npm install`
-  - `npm run dev`
+    - `npm install`
+    - `npm run dev`
 
 ---
 
@@ -46,6 +46,7 @@ Build a small stipend (or grant) application flow that:
 Create a page at `/apply` with a form that collects the following information.
 
 #### Applicant Information
+
 - First name
 - Last name
 - Email
@@ -59,6 +60,7 @@ Create a page at `/apply` with a form that collects the following information.
 - ZIP code
 
 #### Program Information
+
 - Program name
 - Amount requested
 - Agreement checkbox (boolean)
@@ -72,10 +74,12 @@ Create a backend endpoint at:
 `POST /api/applications`
 
 The API should:
+
 - Persist the full application in an in-memory store
 - Generate and return an `applicationId`
 
 #### Authentication
+
 Require an API key via request header:
 
 `X-API-Key`
@@ -89,10 +93,12 @@ Require an API key via request header:
 After validation and persistence, apply a small set of business rules to determine how the application should be processed.
 
 Assign:
+
 - `reviewTier`: `standard` or `manual_review`
 - `riskFlags`: an array of strings explaining why manual review is required
 
 Manual Review Rules:
+
 - Amount requested above a threshold $1000
 - Applicant under 18 based on date of birth
 - Invalid or unusual SSN patterns
@@ -105,6 +111,7 @@ Manual Review Rules:
 After submission and triage, create a separate in-memory record that represents what another internal system would need to continue processing the application.
 
 This record should:
+
 - Be stored separately from the full application
 - Include only what is necessary to continue processing
 
@@ -113,6 +120,7 @@ This record should:
 ### 5. Minimal Testing
 
 Add at least one meaningful test. For example:
+
 - API authentication or validation
 - Business rule evaluation
 - Input validation logic
@@ -126,22 +134,26 @@ Keep this light. We are not evaluating test coverage.
 In addition to implementing the exercise, please include a short explanation covering the following topics.
 
 ### PII Handling
+
 - What data you considered sensitive
 - How you avoided exposing sensitive data in logs, responses, and UI
 
 ### Business Rules and Handoff
+
 - How your triage logic works
 
 ### AI Tool Usage
+
 - If you used AI tools, describe:
-  - What you used them for
-  - How you validated the output
+    - What you used them for
+    - How you validated the output
 
 ---
 
 ## Submission
 
 Please provide:
+
 - A GitHub repository link (public repo or grant us access to private repo)
 - This README with your implementation notes
 - Any setup notes needed to run the project
@@ -155,6 +167,7 @@ If you ran out of time, include a brief "Next Steps" section describing what you
 We are not grading UI design or completeness.
 
 We are evaluating:
+
 - Code clarity and structure
 - Thoughtful API and data design
 - Responsible handling of sensitive data
@@ -165,6 +178,7 @@ We are evaluating:
 Thank you for your time. We look forward to reviewing your work.
 
 ---
+
 ---
 
 # Implementation Notes
@@ -186,7 +200,19 @@ Open [http://localhost:3000/apply](http://localhost:3000/apply) to access the ap
 
 ### Environment Variables
 
-The project includes a `.env.local` file with the API key. For local development, the default key is `stipend-api-key-2024`.
+Copy the example environment file and update with your own values:
+
+```bash
+cp .env.example .env.local
+```
+
+Required variables:
+
+| Variable | Description |
+|----------|-------------|
+| `API_KEY` | Secret key for authenticating API requests |
+
+For local development, the default key is `stipend-api-key-2026`.
 
 ---
 
@@ -224,24 +250,24 @@ The project includes a `.env.local` file with the API key. For local development
 
 ### What data is considered sensitive
 
-| Field | Sensitivity Level | Reasoning |
-|-------|-------------------|-----------|
-| SSN | **Critical** | Direct identifier, enables identity theft |
-| Date of Birth | **High** | Combined with name = identity verification |
-| Full Address | **Medium-High** | Physical location, privacy concern |
-| Phone | **Medium** | Personal contact information |
-| Email | **Medium** | Personal contact, often semi-public |
-| Name | **Low-Medium** | Common, but needed for processing |
+| Field         | Sensitivity Level | Reasoning                                  |
+| ------------- | ----------------- | ------------------------------------------ |
+| SSN           | **Critical**      | Direct identifier, enables identity theft  |
+| Date of Birth | **High**          | Combined with name = identity verification |
+| Full Address  | **Medium-High**   | Physical location, privacy concern         |
+| Phone         | **Medium**        | Personal contact information               |
+| Email         | **Medium**        | Personal contact, often semi-public        |
+| Name          | **Low-Medium**    | Common, but needed for processing          |
 
 ### How sensitive data is protected
 
 1. **API Response**: The API never returns SSN, DOB, or address. Only the `applicationId`, `reviewTier`, and `riskFlags` are returned.
 
 2. **Handoff Record**: The downstream handoff record excludes:
-   - SSN (critical - never passed downstream)
-   - Date of Birth (only age is used for triage, then discarded)
-   - Full Address (not needed for downstream processing)
-   - Phone number (only email retained for contact)
+    - SSN (critical - never passed downstream)
+    - Date of Birth (only age is used for triage, then discarded)
+    - Full Address (not needed for downstream processing)
+    - Phone number (only email retained for contact)
 
 3. **UI Input**: SSN field uses `type="password"` and `autoComplete="off"` to prevent visual exposure and browser caching.
 
@@ -265,13 +291,13 @@ The `triageService.ts` evaluates each application and assigns:
 1. **Amount Threshold**: Amount requested > $1,000
 2. **Age Verification**: Applicant under 18 years old (calculated from DOB)
 3. **SSN Validation**: Invalid or suspicious SSN patterns:
-   - All identical digits (e.g., 111-11-1111)
-   - Sequential patterns (123-45-6789, 987-65-4321)
-   - Area number 000 (invalid)
-   - Area number 666 (never issued)
-   - Area numbers 900-999 (reserved for ITIN)
-   - Group number 00 (invalid)
-   - Serial number 0000 (invalid)
+    - All identical digits (e.g., 111-11-1111)
+    - Sequential patterns (123-45-6789, 987-65-4321)
+    - Area number 000 (invalid)
+    - Area number 666 (never issued)
+    - Area numbers 900-999 (reserved for ITIN)
+    - Group number 00 (invalid)
+    - Serial number 0000 (invalid)
 
 ### Handoff Record Design
 
@@ -279,14 +305,14 @@ The handoff record is intentionally minimal, containing only what downstream sys
 
 ```typescript
 interface HandoffRecord {
-  applicationId: string;      // Reference to full application
-  applicantName: string;      // First + Last name
-  email: string;              // Contact for follow-up
-  programName: string;        // Program applied for
-  amountRequested: number;    // Funding amount
-  reviewTier: string;         // Processing tier
-  riskFlags: string[];        // Reasons for manual review
-  submittedAt: Date;          // Submission timestamp
+    applicationId: string; // Reference to full application
+    applicantName: string; // First + Last name
+    email: string; // Contact for follow-up
+    programName: string; // Program applied for
+    amountRequested: number; // Funding amount
+    reviewTier: string; // Processing tier
+    riskFlags: string[]; // Reasons for manual review
+    submittedAt: Date; // Submission timestamp
 }
 ```
 
