@@ -353,10 +353,41 @@ interface HandoffRecord {
 
 ---
 
+## Rate Limiting
+
+The API implements in-memory rate limiting to prevent abuse:
+
+- **Limit**: 10 requests per minute per IP address
+- **Algorithm**: Sliding window with automatic cleanup of expired entries
+
+### Rate Limit Headers
+
+All responses include rate limit headers:
+
+| Header                  | Description                            |
+| ----------------------- | -------------------------------------- |
+| `X-RateLimit-Limit`     | Maximum requests allowed (10)          |
+| `X-RateLimit-Remaining` | Requests remaining in current window   |
+| `X-RateLimit-Reset`     | Unix timestamp when the window resets  |
+| `Retry-After`           | Seconds to wait (only on 429 responses)|
+
+### Rate Limit Response
+
+When the limit is exceeded, the API returns:
+
+```json
+{
+  "error": "Too many requests. Please try again later."
+}
+```
+
+With HTTP status `429 Too Many Requests`.
+
+---
+
 ## Next Steps (For Production)
 
 If this were going to production, I would prioritize:
 
-1. **Add Rate Limiting**: Prevent brute-force attacks and abuse of the application endpoint
-2. **Structured Logging**: Add audit logging for application submissions (without PII) to track usage, errors, and security events
-3. **Key Management**: Use a dedicated key management service (AWS KMS, HashiCorp Vault) instead of environment variables for the encryption key
+1. **Structured Logging**: Add audit logging for application submissions (without PII) to track usage, errors, and security events
+2. **Key Management**: Use a dedicated key management service (AWS KMS, HashiCorp Vault) instead of environment variables for the encryption key
