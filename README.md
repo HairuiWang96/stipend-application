@@ -1,187 +1,16 @@
-# ECE-Take-Home Exercise: Stipend Application Submission
+# Stipend Application Submission
 
-Thank you for taking the time to complete this exercise.
+A Next.js application for submitting and processing stipend (grant) applications with secure PII handling and automated triage.
 
-This assignment is designed to mirror the type of work you would do on our Early Childhood Education platforms. We are not looking for a perfect or production-ready solution. We are interested in how you think, how you structure code, and how you make tradeoffs.
+## Features
 
-Please keep the scope intentionally small and do not over-engineer.
-
----
-
-## Time Expectation
-
-Please do not spend more than four hours. If you run out of time, document what you would do next.
+- **Application Form**: Collect applicant and program information via a user-friendly form
+- **Secure API**: RESTful endpoint with API key authentication and rate limiting
+- **PII Protection**: AES-256-GCM encryption for sensitive data (SSN, DOB)
+- **Automated Triage**: Business rules to determine review tier and flag applications
+- **Downstream Handoff**: Minimal data handoff records for downstream processing
 
 ---
-
-## Goal
-
-Build a small stipend (or grant) application flow that:
-
-- Collects applicant information via a Next.js UI
-- Submits the data to a backend API
-- Persists the submission in memory
-- Performs basic business rules or triage
-- Creates a decoupled handoff record for downstream processing
-- Demonstrates care in handling sensitive personal data
-
----
-
-## Technical Constraints
-
-- Next.js with TypeScript is required
-- UI may be minimal, no styling or design polish required
-- Persistence must be in memory
-- No databases, Docker, AWS accounts, or external services
-- The project should run locally using:
-    - `npm install`
-    - `npm run dev`
-
----
-
-## What to Build
-
-### 1. User Interface
-
-Create a page at `/apply` with a form that collects the following information.
-
-#### Applicant Information
-
-- First name
-- Last name
-- Email
-- Phone number
-- Date of birth
-- Social Security Number (full SSN, allow dashes)
-- Address line 1
-- Address line 2 (optional)
-- City
-- State (2-letter code)
-- ZIP code
-
-#### Program Information
-
-- Program name
-- Amount requested
-- Agreement checkbox (boolean)
-
----
-
-### 2. API Endpoint
-
-Create a backend endpoint at:
-
-`POST /api/applications`
-
-The API should:
-
-- Persist the full application in an in-memory store
-- Generate and return an `applicationId`
-
-#### Authentication
-
-Require an API key via request header:
-
-`X-API-Key`
-
-- Return `401` if the header is missing or invalid
-
----
-
-### 3. Basic Business Rules (Triage)
-
-After validation and persistence, apply a small set of business rules to determine how the application should be processed.
-
-Assign:
-
-- `reviewTier`: `standard` or `manual_review`
-- `riskFlags`: an array of strings explaining why manual review is required
-
-Manual Review Rules:
-
-- Amount requested above a threshold $1000
-- Applicant under 18 based on date of birth
-- Invalid or unusual SSN patterns
-- Other simple, deterministic checks
-
----
-
-### 4. Downstream Handoff
-
-After submission and triage, create a separate in-memory record that represents what another internal system would need to continue processing the application.
-
-This record should:
-
-- Be stored separately from the full application
-- Include only what is necessary to continue processing
-
----
-
-### 5. Minimal Testing
-
-Add at least one meaningful test. For example:
-
-- API authentication or validation
-- Business rule evaluation
-- Input validation logic
-
-Keep this light. We are not evaluating test coverage.
-
----
-
-## README (This File)
-
-In addition to implementing the exercise, please include a short explanation covering the following topics.
-
-### PII Handling
-
-- What data you considered sensitive
-- How you avoided exposing sensitive data in logs, responses, and UI
-
-### Business Rules and Handoff
-
-- How your triage logic works
-
-### AI Tool Usage
-
-- If you used AI tools, describe:
-    - What you used them for
-    - How you validated the output
-
----
-
-## Submission
-
-Please provide:
-
-- A GitHub repository link (public repo or grant us access to private repo)
-- This README with your implementation notes
-- Any setup notes needed to run the project
-
-If you ran out of time, include a brief "Next Steps" section describing what you would improve first.
-
----
-
-## What We Are Evaluating
-
-We are not grading UI design or completeness.
-
-We are evaluating:
-
-- Code clarity and structure
-- Thoughtful API and data design
-- Responsible handling of sensitive data
-- Ability to apply simple business logic cleanly
-- Separation of concerns
-- Clear communication of tradeoffs
-
-Thank you for your time. We look forward to reviewing your work.
-
----
-
----
-
-# Implementation Notes
 
 ## Setup & Running the Project
 
@@ -251,6 +80,30 @@ For local development, default values are provided in `.env.example`.
 
 ---
 
+## API Endpoints
+
+### POST /api/applications
+
+Submit a new stipend application.
+
+**Headers:**
+- `X-API-Key`: Required API key for authentication
+
+**Response:**
+```json
+{
+  "applicationId": "uuid",
+  "reviewTier": "standard" | "manual_review",
+  "riskFlags": ["string"]
+}
+```
+
+### GET /api/admin/applications
+
+View stored application data (admin endpoint).
+
+---
+
 ## PII Handling
 
 ### What data is considered sensitive
@@ -284,7 +137,7 @@ For local development, default values are provided in `.env.example`.
 
 ---
 
-## Business Rules and Handoff
+## Business Rules and Triage
 
 ### Triage Logic
 
@@ -327,32 +180,6 @@ interface HandoffRecord {
 
 ---
 
-## AI Tool Usage
-
-**Tools Used**: Claude Code
-
-**What it was used for**:
-
-- Checking requirements and ensuring minimum requirements were completed
-- Implementing the project structure and file organization based on design decisions
-- Generating TypeScript interfaces and Zod schemas
-- Implementing SSN validation patterns (researched valid SSN rules)
-- Writing Jest test cases for business rules
-- Code comments throughout the codebase
-- US states list for the state dropdown
-- Tailwind CSS styling classes
-- README documentation
-
-**How output was validated**:
-
-1. **Manual Code Review**: All generated code was reviewed for correctness and security
-2. **Test Execution**: Ran `npm test` to verify all 15 tests pass
-3. **Local Testing**: Manually tested the form submission flow in browser
-4. **TypeScript Compilation**: Ensured `npm run build` completes without errors
-5. **SSN Rules Verification**: Cross-referenced SSN validation rules with SSA documentation
-
----
-
 ## Rate Limiting
 
 The API implements in-memory rate limiting to prevent abuse:
@@ -385,9 +212,28 @@ With HTTP status `429 Too Many Requests`.
 
 ---
 
-## Next Steps (For Production)
+## Testing
 
-If this were going to production, I would prioritize:
+Run the test suite:
 
-1. **Structured Logging**: Add audit logging for application submissions (without PII) to track usage, errors, and security events
-2. **Key Management**: Use a dedicated key management service (AWS KMS, HashiCorp Vault) instead of environment variables for the encryption key
+```bash
+npm test
+```
+
+The test suite includes 15 tests covering:
+- Business rule evaluation
+- SSN validation patterns
+- Age verification logic
+- Triage tier assignment
+
+---
+
+## Technology Stack
+
+- **Framework**: Next.js 14 with App Router
+- **Language**: TypeScript
+- **Validation**: Zod schemas
+- **Forms**: React Hook Form
+- **Styling**: Tailwind CSS
+- **Testing**: Jest
+- **Encryption**: AES-256-GCM (Node.js crypto)
